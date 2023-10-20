@@ -7,8 +7,8 @@ using static Play.Catalog.Service.Dtos;
 namespace Play.Catalog.Service.Controllers
 {
     [ApiController]
-    [Route("items")]
-    class ItemsConroller : ControllerBase
+    [Route("[controller]")]
+    public class ItemsController : ControllerBase
     {
         private readonly ItemsRepository itemsRepository = new();
 
