@@ -12,19 +12,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 //builder.Services.Configure<ServiceSettings>(
-  //  builder.Configuration.GetSection(nameof(ServiceSettings)));
+//  builder.Configuration.GetSection(nameof(ServiceSettings)));
 
 var serviceSettings = builder.Configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
 
 
-builder.Services.AddSingleton(ServiceProvider => {
+builder.Services.AddSingleton(ServiceProvider =>
+{
 
     var mongoDbSettings = builder.Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
     var mongoClient = new MongoClient(mongoDbSettings.ConnectionString);
     return mongoClient.GetDatabase(serviceSettings.ServiceName);
 });
 
-builder.Services.AddSingleton<IItemsRepository , ItemsRepository>();
+builder.Services.AddSingleton<IItemsRepository, ItemsRepository>();
 
 // Add services to the container.
 
