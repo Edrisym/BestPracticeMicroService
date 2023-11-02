@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 using Play.Catalog.Service.Settings;
 using MongoDB.Driver;
 using Play.Catalog.Service.Repositories;
+using Play.Catalog.Service.Entities;
+using Microsoft.VisualBasic;
 
 
 
@@ -25,7 +27,11 @@ builder.Services.AddSingleton(ServiceProvider =>
     return mongoClient.GetDatabase(serviceSettings.ServiceName);
 });
 
-builder.Services.AddSingleton<IItemsRepository, ItemsRepository>();
+builder.Services.AddSingleton<IRepository<Item>>(ServiceProvider =>
+    {
+        var dataBase = ServiceProvider.GetService<IMongoDatabase>();
+        return new MongoRepository<Item>(dataBase, "Items");
+    });
 
 // Add services to the container.
 
