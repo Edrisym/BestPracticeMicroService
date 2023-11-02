@@ -1,4 +1,14 @@
+using MongoDB.Driver;
+using Play.Catalog.Service.Repositories;
+using Play.Catalog.Service.Entities;
+using Play.Catalog.Service.Settings;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var serviceSettings = builder.Configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
+
+builder.Services.AddMongo(builder.Configuration)
+.AddMongoRepository<Item>("Items");
 
 // Add services to the container.
 

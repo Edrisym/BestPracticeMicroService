@@ -4,31 +4,33 @@ using Play.Catalog.Service.Entities;
 
 namespace Play.Catalog.Service.Repositories
 {
-    public class ItemsRepository
+    public class MongoRepository<T> : IRepository<T> where T : IEntity
     {
-        private const string collectionName = "Items";
-        private readonly IMongoCollection<Item> dbCollection;
-        private readonly FilterDefinitionBuilder<Item> filterBuilder = Builders<Item>.Filter;
+        private readonly IMongoCollection<T> dbCollection;
+        private readonly FilterDefinitionBuilder<T> filterBuilder = Builders<T>.Filter;
 
-        public ItemsRepository()
+        public MongoRepository(IMongoDatabase dataBase, string collectionName)
         {
-            var mongoClient = new MongoClient("mongodb://localhost:27017");
-            var dataBase = mongoClient.GetDatabase("Catalog");
-            dbCollection = dataBase.GetCollection<Item>(collectionName);
+            /* use IMongoDatabase Directly as dependancy injec */
+
+            //var mongoClient = new MongoClient("mongodb://localhost:27017");
+            //var dataBase = mongoClient.GetDatabase("Catalog");
+
+            dbCollection = dataBase.GetCollection<T>(collectionName);
         }
 
-        public async Task<IReadOnlyCollection<Item>> GetAllItemAsync()
+        public async Task<IReadOnlyCollection<T>> GetAllItemsAsync()
         {
             return await dbCollection.Find(filterBuilder.Empty).ToListAsync();
         }
 
-        public async Task<Item> GetAsync(Guid id)
+        public async Task<T> GetItemAsync(Guid id)
         {
             var filter = filterBuilder.Eq(entity => entity.Id, id);
             return await dbCollection.Find(filter).FirstOrDefaultAsync();
         }
 
-        public async Task CreatAsync(Item entity)
+        public async Task Createsync(T entity)
         {
             if (entity == null)
             {
@@ -37,7 +39,7 @@ namespace Play.Catalog.Service.Repositories
             await dbCollection.InsertOneAsync(entity);
         }
 
-        public async Task UpdateAsync(Item entity)
+        public async Task UpdateAsync(T entity)
         {
             if (entity == null)
             {
