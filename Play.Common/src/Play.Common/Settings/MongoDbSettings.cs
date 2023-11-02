@@ -1,7 +1,4 @@
-using System.Security.Cryptography.X509Certificates;
-using ThirdParty.BouncyCastle.Utilities.IO.Pem;
-
-namespace Play.Catalog.Service.Settings
+namespace Play.Common.Settings
 {
     public class MongoDbSettings
     {

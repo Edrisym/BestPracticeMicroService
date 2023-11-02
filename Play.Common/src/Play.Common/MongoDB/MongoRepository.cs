@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
-using Play.Catalog.Service.Entities;
 
-namespace Play.Catalog.Service.Repositories
+using System.Linq.Expressions;
+using MongoDB.Driver;
+
+namespace Play.Common.MongoDB
 {
     public class MongoRepository<T> : IRepository<T> where T : IEntity
     {
@@ -11,11 +11,6 @@ namespace Play.Catalog.Service.Repositories
 
         public MongoRepository(IMongoDatabase dataBase, string collectionName)
         {
-            /* use IMongoDatabase Directly as dependancy injec */
-
-            //var mongoClient = new MongoClient("mongodb://localhost:27017");
-            //var dataBase = mongoClient.GetDatabase("Catalog");
-
             dbCollection = dataBase.GetCollection<T>(collectionName);
         }
 
@@ -24,12 +19,20 @@ namespace Play.Catalog.Service.Repositories
             return await dbCollection.Find(filterBuilder.Empty).ToListAsync();
         }
 
+        public async Task<IReadOnlyCollection<T>> GetAllItemsAsync(Expression<Func<T, bool>> filter)
+        {
+            return await dbCollection.Find(filter).ToListAsync();
+        }
+
         public async Task<T> GetItemAsync(Guid id)
         {
             var filter = filterBuilder.Eq(entity => entity.Id, id);
             return await dbCollection.Find(filter).FirstOrDefaultAsync();
         }
-
+        public async Task<T> GetItemAsync(Expression<Func<T, bool>> filter)
+        {
+            return await dbCollection.Find(filter).FirstOrDefaultAsync();
+        }
         public async Task Createsync(T entity)
         {
             if (entity == null)
