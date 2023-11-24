@@ -1,4 +1,5 @@
 using Play.Common.MongoDB;
+using Play.Inventory.Service.Cients;
 using Play.Inventory.Service.Entities;
 using SharpCompress.Archives.SevenZip;
 
@@ -8,6 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMongo(builder.Configuration)
                 .AddMongoRepository<InventoryItem>("inventoryitems");
+
+builder.Services.AddHttpClient<CatalogClients>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5131");
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
