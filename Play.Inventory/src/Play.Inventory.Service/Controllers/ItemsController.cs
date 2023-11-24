@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Web.Virtualization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using Play.Common;
+using Play.Inventory.Service.Cients;
 using Play.Inventory.Service.Dtos;
 using Play.Inventory.Service.Entities;
 
@@ -14,10 +15,12 @@ namespace Play.Inventory.Service.Controllers
     public class ItemsController : ControllerBase
     {
         private readonly IRepository<InventoryItem> _itemsRepository;
+        private readonly CatalogClients _catalogClients;
 
-        public ItemsController(IRepository<InventoryItem> itemsRepository)
+        public ItemsController(IRepository<InventoryItem> itemsRepository, CatalogClients catalogClients)
         {
             _itemsRepository = itemsRepository;
+            _catalogClients = catalogClients;
         }
 
         [HttpGet]
@@ -28,10 +31,15 @@ namespace Play.Inventory.Service.Controllers
                 return BadRequest();
             }
 
-            var items = (await _itemsRepository.GetAllItemsAsync(x => x.UserId == UserId))
-            .Select(x => x.AsDto());
+            var catalogItems = await _catalogClients.GetCatalogItemAsync();
+            var inventotyItemEntities = await _itemsRepository.GetAllItemsAsync(x => x.UserId == UserId);
 
-            return Ok(items);
+            var inventoryItemDto = inventotyItemEntities.Select(inventoryItem =>
+            {
+                var catalogItem = catalogItems.Single(x => x.Id == inventoryItem.CatalogItemId);
+                return inventoryItem.AsDto(catalogItem.Name, catalogItem.Description);
+            });
+            return Ok(inventoryItemDto);
         }
 
         [HttpPost]
