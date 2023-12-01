@@ -27,6 +27,22 @@ onRetry: (outcome, timespan, retryAttempt) =>
         .LogWarning($"Delaying for {timespan.TotalSeconds} seconds, then making retry {retryAttempt}");
 }
 ))
+.AddTransientHttpErrorPolicy(build => build.Or<TimeoutRejectedException>().CircuitBreakerAsync(
+3,
+TimeSpan.FromSeconds(15),
+onBreak: (outCome, timeSpan) =>
+{
+    var serviceProvider = builder.Services.BuildServiceProvider();
+    serviceProvider.GetService<ILogger<CatalogClients>>()?
+    .LogWarning($"Opening the circuit breaker for {timeSpan.TotalSeconds} seconds...");
+},
+onReset: () =>
+{
+    var serviceProvider = builder.Services.BuildServiceProvider();
+    serviceProvider.GetService<ILogger<CatalogClients>>()?
+    .LogWarning($"Closing the circuit...");
+}
+))
 .AddPolicyHandler(Policy.TimeoutAsync<HttpResponseMessage>(1));
 
 builder.Services.AddControllers();
