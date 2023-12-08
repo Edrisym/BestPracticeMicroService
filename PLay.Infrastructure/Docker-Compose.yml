@@ -1,11 +1,11 @@
-# docker run -d --rm --name mongo -p 27017:27017 -V mongodbdata:/data/db mongo
+  # docker run -d --rm --name mongo -p 27017:27017 -V mongodbdata:/data/db mongo
 
 version: "4.25.0"
 
 services:
   mongo:
     image: mongo
-    container_name: mongo
+    container_name: mongodb
     ports:
       - 27017:27017
     volumes:
